@@ -1,0 +1,29 @@
+{
+  "info": {
+    "name": "Risk Assessment Rule Engine",
+    "_postman_id": "12345678-abcd-efgh-ijkl-1234567890ab",
+    "description": "Postman collection to test the FastAPI-based Risk Assessment Rule Engine.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Assess Risk",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/assess",
+          "host": ["{{base_url}}"],
+          "path": ["assess"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"documents\": [... full sample payload here ...],\n  \"raw_text_by_url\": {...},\n  \"client_profile\": {...}\n}"
+        }
+      },
+      "response": []
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+# rulepack.yaml (minimal starter — replace with the full YAML we defined previously)
+rulepack:
+  name: "ADCB-SoW-UAE"
+  rulepack_version: "dmn:v1.3.2-UAE"
+  jurisdiction: "UAE"
+  policy_refs: ["CBUAE-AML-CFT-Guidance-2024", "ADCB-Risk-Policy-EDD-2025H1"]
+
+  thresholds:
+    sufficiency_min_default: 0.80
+    edd_cutoff_score_default: 70
+    bands:
+      high: 70
+      medium: 40
+
+  dimensions:
+    geo_risk:
+      score_map:
+        base: { low: 5, medium: 15, high: 25 }
+      modifiers:
+        fatf_exposure:
+          list:
+            grey: ["Pakistan", "South Africa", "Bulgaria", "Nigeria"]
+            black: ["North Korea", "Iran"]
+          add_if_in: { grey: 5, black: 10 }
+      label_map:
+        from_input: "risk_features.geo.label"
+      reason_templates:
+        - when: "grey"
+          text: "Customer residency is {{customer_country|UAE}} (neutral), but remittance to FATF-greylisted jurisdiction noted ({{match}})."
+        - when: "black"
+          text: "Payments involve FATF blacklisted jurisdiction ({{match}})."
+        - when: "default"
+          text: "Geo exposure aligns with declared residency and sources."
+
+    pep_sanctions:
+      rules:
+        - when: "match"
+          score: 100
+          label: "high"
+          reason: "Positive match in screening; mandatory EDD."
+          hard_route: "EDD"
+        - when: "possible"
+          score: 30
+          label: "medium"
+          reason: "Possible screening hit; requires analyst confirmation."
+        - when: "clear"
+          score: 0
+          label: "low"
+          reason: "No PEP match. No sanctions alerts from screening summary."
+
+    adverse_media:
+      mapping:
+        severity_to_score: { none: 0, low: 10, medium: 20, high: 30 }
+        severity_to_label: { none: "low", low: "low", medium: "medium", high: "high" }
+      reason_templates:
+        - when: "none"
+          text: "No negative media hits in top-tier news sources."
+        - when: "default"
+          text: "Adverse media severity {{severity}} ({{hits|0}} hits)."
+
+    pattern_risk:
+      base_by_pattern:
+        WPS_Salary: 0
+        Salary_Plus_Property: 10
+        UAE_Property_Rental: 8
+        UAE_Property_Sale: 8
+        Listed_Dividends_ADX_DFM: 5
+        PrivateCo_Distributions_UAE: 12
+        Trust: 15
+        Crypto: 25
+        CrossBorder_Remittances: 15
+        Other: 12
+      inconsistency_modifiers:
+        salaried_high_cash: 20
+        rental_count_mismatch: 10
+        dividend_missing_proof: 8
+
+    evidence_gaps:
+      scoring:
+        base_from_sufficiency: { when_low: 15, when_ok: 5 }
+        per_issue_points: { none: 0, low: 5, medium: 10, high: 15 }
+        max_issue_points: 20
+        partial_alignment_points: { partial: 6, mismatch: 10, missing: 12, aligned: 0, max_alignment_points: 20 }
+
+    product_channel:
+      base_by_label: { low: 5, medium: 10, high: 15 }
+      channel_adders: { introducer: 5, remote: 2, branch: 0 }
+      cross_border_adders: { non_uae_flow: 2, offshore_investment_hint: 2 }
+      offshore_keywords: ["offshore", "international brokerage", "BVI", "IFC"]
+
+  aggregation:
+    total_risk_score: "sum"
+    risk_label:
+      - { when: ">=high", label: "high" }
+      - { when: ">=medium", label: "medium" }
+      - { when: "default", label: "low" }
+    route:
+      - { when: "hard_edd", value: "EDD" }
+      - { when: "sufficiency_below_min", value: "EDD" }
+      - { when: ">=edd_cutoff", value: "EDD" }
+      - { when: "default", value: "Baseline" }
+
+  red_flags:
+    - { key: "salaried_high_cash", text: "Cash deposits unexplained" }
+    - { key: "rental_count_mismatch", text: "Mismatch in rental property count" }
+    - { key: "cross_border", text: "Cross-border investments without sufficient evidence" }
+
+  explanation:
+    template: "Overall {{risk_label}} risk. {{primary}} push the case to {{route}}."

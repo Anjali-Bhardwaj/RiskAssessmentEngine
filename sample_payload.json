@@ -1,0 +1,93 @@
+{
+  "documents": [
+    {
+      "url": "https://example.com/employment.txt",
+      "type": "Employment & Salary Income",
+      "extracted_data": {
+        "employer": "Tech Innovations Ltd",
+        "job_title": "Senior Software Engineer",
+        "start_date": "2017-03-01",
+        "monthly_salary": 6500.0,
+        "currency": "GBP",
+        "salary_slip_dates": [],
+        "bank_statement_match": false,
+        "anomalies": [
+          "field_error:salary_slip_dates is empty but should contain date strings",
+          "field_error:bank_statement_match is false, supporting evidence required",
+          "client_profile:monthly_salary does not match annual_income from client profile"
+        ],
+        "extraction_errors": []
+      },
+      "anomalies": [
+        "field_error:salary_slip_dates is empty but should contain date strings",
+        "field_error:bank_statement_match is false, supporting evidence required",
+        "client_profile:monthly_salary does not match annual_income from client profile"
+      ]
+    },
+    {
+      "url": "https://example.com/property.txt",
+      "type": "Real Estate & Asset Sales",
+      "extracted_data": {
+        "properties": [
+          {
+            "address": "25 Park Lane, India",
+            "property_type": null,
+            "current_value": 850000.0,
+            "purchase_date": "2018-09-15",
+            "title_deed_ref": "TGL123456"
+          }
+        ],
+        "anomalies": [
+          "client_profile: Address mismatch for property. Extracted address '25 Park Lane, India' does not match client profile address '25 Park Lane, London'.",
+          "field_error: Missing 'property_type' field in extracted document."
+        ],
+        "extraction_errors": []
+      },
+      "anomalies": [
+        "client_profile: Address mismatch for property. Extracted address '25 Park Lane, India' does not match client profile address '25 Park Lane, London'.",
+        "field_error: Missing 'property_type' field in extracted document."
+      ]
+    },
+    {
+      "url": "https://example.com/identity.txt",
+      "type": "Identity & Residency Proof",
+      "extracted_data": {
+        "full_name": "John Smith",
+        "date_of_birth": "1985-05-15",
+        "residency_status": null,
+        "address_verification": false,
+        "address": null,
+        "passport_number": "123456789",
+        "emirates_id": null,
+        "visa_status": null,
+        "anomalies": [
+          "field_error:residency_status is null but should be a string or null",
+          "field_error:address_verification is false but should be a boolean or null",
+          "field_error:address is null but should be a string or null",
+          "client_profile:residency_status is null but client profile indicates 'UK Citizen'",
+          "client_profile:address_verification is false but client profile indicates address '25 Park Lane, London' is present"
+        ],
+        "extraction_errors": []
+      },
+      "anomalies": [
+        "field_error:residency_status is null but should be a string or null",
+        "field_error:address_verification is false but should be a boolean or null",
+        "field_error:address is null but should be a string or null",
+        "client_profile:residency_status is null but client profile indicates 'UK Citizen'",
+        "client_profile:address_verification is false but client profile indicates address '25 Park Lane, London' is present"
+      ]
+    }
+  ],
+  "raw_text_by_url": {
+    "https://example.com/employment.txt": "Employment confirmation text...",
+    "https://example.com/property.txt": "Property title deed text...",
+    "https://example.com/identity.txt": "Passport information text..."
+  },
+  "client_profile": {
+    "name": "John Smith",
+    "dob": "15/05/1985",
+    "residency": "UK Citizen",
+    "annual_income": 79000,
+    "properties": ["25 Park Lane, London"]
+  }
+}
