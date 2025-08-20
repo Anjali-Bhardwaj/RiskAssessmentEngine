@@ -376,4 +376,6 @@ def reload_rulepack():
     return {"status": "reloaded", "rulepack": RULEPACK.get("rulepack_version", "unknown")}
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host=os.getenv("HOST", "0.0.0.0"), port=int(os.getenv("PORT", "8080")), reload=False)
+   # uvicorn.run("risk_assesment_rule_engine:app", host=os.getenv("HOST", "0.0.0.0"), port=int(os.getenv("PORT", "8080")), reload=False)
+   port = int(os.environ.get("PORT", 5000))
+   app.run(host="0.0.0.0", port=port)
